@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <label>Semantic Proposal</label>
+    <nameField>
+        <displayFormat>SP-{000000}</displayFormat>
+        <label>Semantic Proposal Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Semantic Proposals</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

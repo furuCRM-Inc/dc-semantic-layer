@@ -1,0 +1,94 @@
+<template>
+    <lightning-card title="Semantic Steward Workspace" icon-name="standard:data_streams">
+        <div class="slds-p-horizontal_medium">
+
+            <lwc:if isTrue={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </lwc:if>
+
+            <lwc:if isTrue={hasError}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">
+                    <span class="slds-assistive-text">Error</span>
+                    {errorMessage}
+                </div>
+            </lwc:if>
+
+            <lwc:if isTrue={hasProposals}>
+                <div class="slds-m-bottom_small slds-text-body_small slds-text-color_weak">
+                    {proposalCount} proposal(s) awaiting review
+                </div>
+
+                <template for:each={proposals} for:item="proposal">
+                    <div key={proposal.Id} class="slds-box slds-m-bottom_small proposal-card">
+                        <div class="slds-grid slds-gutters slds-wrap">
+
+                            <div class="slds-col slds-size_1-of-1 slds-m-bottom_xx-small">
+                                <span class="slds-text-heading_small">{proposal.DLO_Name__c}</span>
+                                <lightning-badge
+                                    label={proposal.confidencePct}
+                                    class="slds-m-left_x-small">
+                                </lightning-badge>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-2">
+                                <p class="slds-text-color_weak slds-text-body_small">Suggested DMO</p>
+                                <p>{proposal.Suggested_DMO__c}</p>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-2">
+                                <p class="slds-text-color_weak slds-text-body_small">Created</p>
+                                <lightning-formatted-date-time
+                                    value={proposal.CreatedDate}
+                                    year="numeric"
+                                    month="short"
+                                    day="2-digit">
+                                </lightning-formatted-date-time>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
+                                <p class="slds-text-color_weak slds-text-body_small">Proposed Mappings</p>
+                                <pre class="mapping-pre">{proposal.Proposed_Mappings_JSON__c}</pre>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
+                                <lightning-textarea
+                                    label="Override Mappings (optional)"
+                                    data-id={proposal.Id}
+                                    onchange={handleMappingOverride}
+                                    placeholder="Leave blank to use AI-proposed mappings">
+                                </lightning-textarea>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                                <lightning-button
+                                    label="Approve"
+                                    variant="success"
+                                    data-id={proposal.Id}
+                                    onclick={handleApprove}
+                                    class="slds-m-right_x-small">
+                                </lightning-button>
+                                <lightning-button
+                                    label="Reject"
+                                    variant="destructive"
+                                    data-id={proposal.Id}
+                                    onclick={handleReject}>
+                                </lightning-button>
+                            </div>
+
+                        </div>
+                    </div>
+                </template>
+            </lwc:if>
+
+            <lwc:if isTrue={isEmpty}>
+                <div class="slds-illustration slds-illustration_small slds-m-vertical_large">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_medium">All clear</h3>
+                        <p class="slds-text-body_regular">No draft proposals awaiting review.</p>
+                    </div>
+                </div>
+            </lwc:if>
+
+        </div>
+    </lightning-card>
+</template>
