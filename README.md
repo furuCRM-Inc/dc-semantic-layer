@@ -37,6 +37,27 @@ AgentforceSemanticResolver         ← @InvocableMethod → injects mappings at 
 
 ---
 
+## Why this exists — the 3 structural limits of Data Cloud semantics
+
+Data Cloud has Calculated Insights, Data Graphs, Tableau Semantics, and Metric Definitions.
+They are excellent for analytics. But when you deploy autonomous Agentforce agents into
+real business processes, you hit three hard walls:
+
+| # | Limit | Example gap |
+|---|---|---|
+| 1 | **Static, read-only definitions** | Data Cloud can define "churn risk > 80%". It cannot express "but do NOT send a discount offer if the customer has an active CRM claim" |
+| 2 | **No write-back guardrails** | Agent correctly identifies Opportunity as Closed-Won. CRM's validation rules reject the write. Agent loops. Data Cloud has no concept of pre-execution constraints. |
+| 3 | **No stateful context switching** | "Qualified Lead" means ARR ≥ ¥50M for Enterprise agents, ARR < ¥10M for SMB agents. Data Cloud's global Metric Definition cannot serve both. |
+
+**dc-semantic-layer** adds the operational semantic layer on top of Data Cloud's analytic
+layer — storing action guardrails, write-back preconditions, and context-aware definitions
+as human-verified records in `Semantic_Registry__c`, injected into Prompt Builder at
+runtime via `AgentforceSemanticResolver`.
+
+→ See [`docs/prompt-builder-template.md`](docs/prompt-builder-template.md) for the full template and per-pain-point resolution.
+
+---
+
 ## Token efficiency
 
 Grounding Agentforce with raw DLO schema is expensive. This project integrates with
@@ -72,6 +93,41 @@ force-app/main/default/
 │   └── Semantic_Registry__c/                  # Human-verified registry
 └── namedCredentials/
     └── DataCloud_Named_Credential             # OAuth → Data Cloud tenant
+```
+
+---
+
+## Pain point samples
+
+Seed the 3 scenarios above as live `Semantic_Registry__c` records:
+
+```bash
+# 1. Deploy the package
+sf project deploy start --source-dir force-app --target-org <alias>
+
+# 2. Seed registry with 3 pain point examples (churn guardrail, opp write-back, Enterprise/SMB)
+sf apex run --file scripts/apex/seedPainPointSamples.apex --target-org <alias>
+
+# 3. Verify all resolve correctly
+sf apex run --file scripts/apex/verifyPainPointSamples.apex --target-org <alias>
+```
+
+Expected verify output:
+```
+PAIN POINT 1: Action Guardrails
+  PASS: PP1 found=true
+  PASS: PP1 guardrail contains EXCEPTION
+  PASS: PP1 guardrail routes to human agent
+PAIN POINT 2: Write-back Guardrails
+  PASS: PP2 check Edit permission
+  PASS: PP2 no auto-retry rule
+PAIN POINT 3a: Enterprise Context
+  PASS: PP3-E requires MEDDIC
+PAIN POINT 3b: SMB Context
+  PASS: PP3-S self-serve trial
+ISOLATION: Enterprise context must not leak SMB rules
+  PASS: Enterprise rules do not contain SMB content
+RESULT: 18 passed, 0 failed
 ```
 
 ---
@@ -140,14 +196,14 @@ Drag **Semantic Steward Workspace** onto any Lightning App Page via the App Buil
 sf apex run test --test-level RunLocalTests --target-org <alias> --result-format human
 ```
 
-Expected: **22 tests, 0 failures**
+Expected: **24 tests, 0 failures**
 
-| Class                                | Tests |
-|--------------------------------------|-------|
-| DataCloudDiscoveryServiceTest        | 8     |
-| AgentforceSemanticInferenceActionTest| 5     |
-| SemanticStewardControllerTest        | 5     |
-| AgentforceSemanticResolverTest       | 6     |
+| Class                                | Tests | Covers                                             |
+|--------------------------------------|-------|----------------------------------------------------|
+| DataCloudDiscoveryServiceTest        | 8     | DLO + DMO callouts, error handling, aliases        |
+| AgentforceSemanticInferenceActionTest| 5     | DLO + DMO inference, defaults, error path          |
+| SemanticStewardControllerTest        | 5     | Approve (DLO+DMO), natural language notes, reject  |
+| AgentforceSemanticResolverTest       | 8     | Pain Point 1/2/3, context isolation, batch resolve |
 
 ---
 
