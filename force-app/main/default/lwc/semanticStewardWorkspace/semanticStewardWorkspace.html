@@ -2,18 +2,18 @@
     <lightning-card title="Semantic Steward Workspace" icon-name="standard:data_streams">
         <div class="slds-p-horizontal_medium">
 
-            <lwc:if isTrue={isLoading}>
+            <lwc:if value={isLoading}>
                 <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
             </lwc:if>
 
-            <lwc:if isTrue={hasError}>
+            <lwc:if value={hasError}>
                 <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">
                     <span class="slds-assistive-text">Error</span>
                     {errorMessage}
                 </div>
             </lwc:if>
 
-            <lwc:if isTrue={hasProposals}>
+            <lwc:if value={hasProposals}>
                 <div class="slds-m-bottom_small slds-text-body_small slds-text-color_weak">
                     {proposalCount} proposal(s) awaiting review
                 </div>
@@ -54,7 +54,7 @@
                                     data-id={proposal.Id}
                                     data-field="mappingOverride"
                                     onchange={handleFieldChange}
-                                    placeholder='{"SourceField": "TargetField__c", ...}'
+                                    placeholder="SourceField: TargetField__c (JSON format)"
                                     class="mapping-override">
                                 </lightning-textarea>
                             </div>
@@ -91,7 +91,7 @@
                 </template>
             </lwc:if>
 
-            <lwc:if isTrue={isEmpty}>
+            <lwc:if value={isEmpty}>
                 <div class="slds-illustration slds-illustration_small slds-m-vertical_large">
                     <div class="slds-text-longform">
                         <h3 class="slds-text-heading_medium">All clear</h3>

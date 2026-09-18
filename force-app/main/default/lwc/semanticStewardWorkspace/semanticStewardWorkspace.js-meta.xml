@@ -7,9 +7,4 @@
         <target>lightning__HomePage</target>
         <target>lightning__RecordPage</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightning__AppPage,lightning__HomePage">
-            <property name="title" type="String" label="Card Title" default="Semantic Steward Workspace"/>
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>
