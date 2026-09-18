@@ -24,10 +24,8 @@
 
                             <div class="slds-col slds-size_1-of-1 slds-m-bottom_xx-small">
                                 <span class="slds-text-heading_small">{proposal.DLO_Name__c}</span>
-                                <lightning-badge
-                                    label={proposal.confidencePct}
-                                    class="slds-m-left_x-small">
-                                </lightning-badge>
+                                <lightning-badge label={proposal.Entity_Type__c} class="slds-m-left_x-small"></lightning-badge>
+                                <lightning-badge label={proposal.confidencePct} class="slds-m-left_x-small"></lightning-badge>
                             </div>
 
                             <div class="slds-col slds-size_1-of-2">
@@ -46,16 +44,29 @@
                             </div>
 
                             <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
-                                <p class="slds-text-color_weak slds-text-body_small">Proposed Mappings</p>
+                                <p class="slds-text-color_weak slds-text-body_small">AI-Proposed Mappings</p>
                                 <pre class="mapping-pre">{proposal.Proposed_Mappings_JSON__c}</pre>
                             </div>
 
                             <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
                                 <lightning-textarea
-                                    label="Override Mappings (optional)"
+                                    label="Override Mappings JSON (optional)"
                                     data-id={proposal.Id}
-                                    onchange={handleMappingOverride}
-                                    placeholder="Leave blank to use AI-proposed mappings">
+                                    data-field="mappingOverride"
+                                    onchange={handleFieldChange}
+                                    placeholder='{"SourceField": "TargetField__c", ...}'
+                                    class="mapping-override">
+                                </lightning-textarea>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
+                                <lightning-textarea
+                                    label="Business Logic Notes (natural language)"
+                                    data-id={proposal.Id}
+                                    data-field="naturalLanguageNotes"
+                                    onchange={handleFieldChange}
+                                    placeholder="e.g. Exclude cancelled orders. Map OrderId to customer-facing order number. Amount is always in JPY."
+                                    class="notes-field">
                                 </lightning-textarea>
                             </div>
 

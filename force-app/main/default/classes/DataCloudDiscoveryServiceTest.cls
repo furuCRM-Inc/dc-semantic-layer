@@ -17,36 +17,47 @@ private class DataCloudDiscoveryServiceTest {
     }
 
     @IsTest
-    static void testSampleDLOData_success() {
+    static void testSampleObjectData_dlo_success() {
         String mockBody = '{"data":[{"id":"1"}]}';
         Test.setMock(HttpCalloutMock.class, new SuccessMock(200, mockBody));
 
         Test.startTest();
-        String result = DataCloudDiscoveryService.sampleDLOData('OrderDLO__dlm', 3);
+        String result = DataCloudDiscoveryService.sampleObjectData('OrderDLO__dlm', 3);
         Test.stopTest();
 
         Assert.areEqual(mockBody, result);
     }
 
     @IsTest
-    static void testSampleDLOData_201accepted() {
-        String mockBody = '{"data":[]}';
-        Test.setMock(HttpCalloutMock.class, new SuccessMock(201, mockBody));
+    static void testSampleObjectData_dmo_success() {
+        String mockBody = '{"data":[{"IndividualId":"I-001"}]}';
+        Test.setMock(HttpCalloutMock.class, new SuccessMock(200, mockBody));
 
         Test.startTest();
-        String result = DataCloudDiscoveryService.sampleDLOData('TestDLO__dlm', 1);
+        String result = DataCloudDiscoveryService.sampleObjectData('Individual__dlm', 3);
         Test.stopTest();
 
         Assert.areEqual(mockBody, result);
     }
 
     @IsTest
-    static void testSampleDLOData_errorThrows() {
+    static void testSampleObjectData_201accepted() {
+        Test.setMock(HttpCalloutMock.class, new SuccessMock(201, '{"data":[]}'));
+
+        Test.startTest();
+        String result = DataCloudDiscoveryService.sampleObjectData('TestDLO__dlm', 1);
+        Test.stopTest();
+
+        Assert.areEqual('{"data":[]}', result);
+    }
+
+    @IsTest
+    static void testSampleObjectData_errorThrows() {
         Test.setMock(HttpCalloutMock.class, new SuccessMock(400, '{"error":"bad request"}'));
 
         Test.startTest();
         try {
-            DataCloudDiscoveryService.sampleDLOData('BadDLO__dlm', 5);
+            DataCloudDiscoveryService.sampleObjectData('BadDLO__dlm', 5);
             Assert.fail('Expected CalloutException');
         } catch (CalloutException ex) {
             Assert.isTrue(ex.getMessage().contains('Failed to sample'));
@@ -55,28 +66,54 @@ private class DataCloudDiscoveryServiceTest {
     }
 
     @IsTest
-    static void testGetDLOMetadata_success() {
+    static void testGetObjectMetadata_dlo_success() {
         String mockBody = '{"fields":[{"name":"Id","type":"string"}]}';
         Test.setMock(HttpCalloutMock.class, new SuccessMock(200, mockBody));
 
         Test.startTest();
-        String result = DataCloudDiscoveryService.getDLOMetadata('OrderDLO__dlm');
+        String result = DataCloudDiscoveryService.getObjectMetadata('OrderDLO__dlm', DataCloudDiscoveryService.TYPE_DLO);
         Test.stopTest();
 
         Assert.areEqual(mockBody, result);
     }
 
     @IsTest
-    static void testGetDLOMetadata_errorThrows() {
+    static void testGetObjectMetadata_dmo_success() {
+        String mockBody = '{"fields":[{"name":"IndividualId","type":"string"}]}';
+        Test.setMock(HttpCalloutMock.class, new SuccessMock(200, mockBody));
+
+        Test.startTest();
+        String result = DataCloudDiscoveryService.getObjectMetadata('Individual__dlm', DataCloudDiscoveryService.TYPE_DMO);
+        Test.stopTest();
+
+        Assert.areEqual(mockBody, result);
+    }
+
+    @IsTest
+    static void testGetObjectMetadata_errorThrows() {
         Test.setMock(HttpCalloutMock.class, new SuccessMock(404, '{"error":"not found"}'));
 
         Test.startTest();
         try {
-            DataCloudDiscoveryService.getDLOMetadata('NonExistent__dlm');
+            DataCloudDiscoveryService.getObjectMetadata('NonExistent__dlm', DataCloudDiscoveryService.TYPE_DLO);
             Assert.fail('Expected CalloutException');
         } catch (CalloutException ex) {
-            Assert.isTrue(ex.getMessage().contains('Failed to retrieve DLO metadata'));
+            Assert.isTrue(ex.getMessage().contains('Failed to retrieve metadata'));
         }
         Test.stopTest();
+    }
+
+    @IsTest
+    static void testBackwardsCompatibleAliases() {
+        String mockBody = '{"data":[]}';
+        Test.setMock(HttpCalloutMock.class, new SuccessMock(200, mockBody));
+
+        Test.startTest();
+        String r1 = DataCloudDiscoveryService.sampleDLOData('OrderDLO__dlm', 1);
+        String r2 = DataCloudDiscoveryService.getDLOMetadata('OrderDLO__dlm');
+        Test.stopTest();
+
+        Assert.areEqual(mockBody, r1);
+        Assert.areEqual(mockBody, r2);
     }
 }

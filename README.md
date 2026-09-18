@@ -1,13 +1,17 @@
 # dc-semantic-layer
 
-> **Data Cloud Native AI Semantic Layer with Human-in-the-Loop**
+> **Hybrid Semantic Layer for Agentforce — covering DLO and DMO with Human-in-the-Loop**
 > Agentforce + Data Cloud · Salesforce DX · API v66.0
 
 ---
 
 ## What it does
 
-`dc-semantic-layer` closes the gap between raw Data Cloud DLOs and Agentforce-ready business context. The AI proposes semantic mappings; a human steward reviews them before they reach production.
+`dc-semantic-layer` provides a **Hybrid Semantic Layer** that covers both:
+- **DLO (Data Lake Object)** — raw ingested data needing mapping to a business model
+- **DMO (Data Model Object)** — unified profile entities (Individual, Sales Order, …) needing actionable guardrails
+
+The AI proposes semantic mappings; a human steward reviews, overrides (JSON or **natural language**), and approves before the definition reaches Agentforce at runtime.
 
 ```
 Data Cloud DLO
@@ -108,7 +112,8 @@ Drag **Semantic Steward Workspace** onto any Lightning App Page via the App Buil
 
 | Field                    | Type          | Notes                         |
 |--------------------------|---------------|-------------------------------|
-| DLO_Name__c              | Text(255)     | Source DLO API name           |
+| DLO_Name__c              | Text(255)     | Source DLO or DMO API name    |
+| Entity_Type__c           | Picklist      | **DLO** / **DMO**             |
 | Suggested_DMO__c         | Text(255)     | AI-inferred target DMO        |
 | Confidence_Score__c      | Number(3,2)   | 0.00–1.00                     |
 | Proposed_Mappings_JSON__c| LongTextArea  | Raw JSON field map            |
@@ -117,14 +122,15 @@ Drag **Semantic Steward Workspace** onto any Lightning App Page via the App Buil
 
 ### `Semantic_Registry__c` — verified mappings
 
-| Field                          | Type          | Notes                     |
-|-------------------------------|---------------|---------------------------|
-| Entity_Name__c                 | Text(255)     | DLO API name              |
-| Target_DMO__c                  | Text(255)     | Verified DMO target       |
-| Verified_Field_Mappings_JSON__c| LongTextArea  | Human-approved JSON map   |
-| Business_Logic_Rules__c        | LongTextArea  | Free-form logic notes     |
-| Status__c                      | Picklist      | Active / Deprecated       |
-| Verified_By__c                 | Lookup(User)  | Who approved it           |
+| Field                          | Type          | Notes                                           |
+|-------------------------------|---------------|-------------------------------------------------|
+| Entity_Name__c                 | Text(255)     | DLO or DMO API name                             |
+| Entity_Type__c                 | Picklist      | **DLO** / **DMO**                               |
+| Target_DMO__c                  | Text(255)     | Verified DMO target                             |
+| Verified_Field_Mappings_JSON__c| LongTextArea  | Human-approved JSON map                         |
+| Business_Logic_Rules__c        | LongTextArea  | **Natural language notes** from the steward     |
+| Status__c                      | Picklist      | Active / Deprecated                             |
+| Verified_By__c                 | Lookup(User)  | Who approved it                                 |
 
 ---
 
@@ -134,14 +140,14 @@ Drag **Semantic Steward Workspace** onto any Lightning App Page via the App Buil
 sf apex run test --test-level RunLocalTests --target-org <alias> --result-format human
 ```
 
-Expected: **18 tests, 0 failures**
+Expected: **22 tests, 0 failures**
 
 | Class                                | Tests |
 |--------------------------------------|-------|
-| DataCloudDiscoveryServiceTest        | 5     |
-| AgentforceSemanticInferenceActionTest| 4     |
+| DataCloudDiscoveryServiceTest        | 8     |
+| AgentforceSemanticInferenceActionTest| 5     |
 | SemanticStewardControllerTest        | 5     |
-| AgentforceSemanticResolverTest       | 4     |
+| AgentforceSemanticResolverTest       | 6     |
 
 ---
 

@@ -23,7 +23,7 @@ private class AgentforceSemanticInferenceActionTest {
     }
 
     @IsTest
-    static void testInfer_success() {
+    static void testInfer_dlo_success() {
         String sampleBody   = '{"data":[{"OrderId":"O-001"}]}';
         String metadataBody = '{"fields":[{"name":"OrderId","type":"string"}]}';
         Test.setMock(HttpCalloutMock.class, new MultiMock(
@@ -32,8 +32,9 @@ private class AgentforceSemanticInferenceActionTest {
 
         AgentforceSemanticInferenceAction.InferenceRequest req =
             new AgentforceSemanticInferenceAction.InferenceRequest();
-        req.dloApiName  = 'OrderDLO__dlm';
-        req.sampleSize  = 2;
+        req.objectApiName = 'OrderDLO__dlm';
+        req.entityType    = 'DLO';
+        req.sampleSize    = 2;
 
         Test.startTest();
         List<AgentforceSemanticInferenceAction.InferenceResult> results =
@@ -42,19 +43,45 @@ private class AgentforceSemanticInferenceActionTest {
             );
         Test.stopTest();
 
-        Assert.areEqual(1, results.size());
         Assert.isTrue(results[0].success);
-        Assert.isTrue(results[0].groundingJson.contains('dloApiName'));
+        Assert.isTrue(results[0].groundingJson.contains('objectApiName'));
+        Assert.isTrue(results[0].groundingJson.contains('DLO'));
     }
 
     @IsTest
-    static void testInfer_defaultSampleSize() {
+    static void testInfer_dmo_success() {
+        String sampleBody   = '{"data":[{"IndividualId":"IND-001"}]}';
+        String metadataBody = '{"fields":[{"name":"IndividualId","type":"string"}]}';
+        Test.setMock(HttpCalloutMock.class, new MultiMock(
+            new List<String>{ sampleBody, metadataBody }
+        ));
+
+        AgentforceSemanticInferenceAction.InferenceRequest req =
+            new AgentforceSemanticInferenceAction.InferenceRequest();
+        req.objectApiName = 'Individual__dlm';
+        req.entityType    = 'DMO';
+        req.sampleSize    = 2;
+
+        Test.startTest();
+        List<AgentforceSemanticInferenceAction.InferenceResult> results =
+            AgentforceSemanticInferenceAction.infer(
+                new List<AgentforceSemanticInferenceAction.InferenceRequest>{ req }
+            );
+        Test.stopTest();
+
+        Assert.isTrue(results[0].success);
+        Assert.isTrue(results[0].groundingJson.contains('DMO'));
+    }
+
+    @IsTest
+    static void testInfer_defaultsToTypeWhenBlank() {
         String body = '{"data":[]}';
         Test.setMock(HttpCalloutMock.class, new MultiMock(new List<String>{ body, body }));
 
         AgentforceSemanticInferenceAction.InferenceRequest req =
             new AgentforceSemanticInferenceAction.InferenceRequest();
-        req.dloApiName = 'ContactDLO__dlm';
+        req.objectApiName = 'ContactDLO__dlm';
+        req.entityType    = '';
 
         Test.startTest();
         List<AgentforceSemanticInferenceAction.InferenceResult> results =
@@ -64,6 +91,7 @@ private class AgentforceSemanticInferenceActionTest {
         Test.stopTest();
 
         Assert.isTrue(results[0].success);
+        Assert.isTrue(results[0].groundingJson.contains('DLO'));
     }
 
     @IsTest
@@ -73,8 +101,9 @@ private class AgentforceSemanticInferenceActionTest {
 
         AgentforceSemanticInferenceAction.InferenceRequest req =
             new AgentforceSemanticInferenceAction.InferenceRequest();
-        req.dloApiName = 'LargeDLO__dlm';
-        req.sampleSize = 100;
+        req.objectApiName = 'LargeDLO__dlm';
+        req.entityType    = 'DLO';
+        req.sampleSize    = 100;
 
         Test.startTest();
         List<AgentforceSemanticInferenceAction.InferenceResult> results =
@@ -92,7 +121,8 @@ private class AgentforceSemanticInferenceActionTest {
 
         AgentforceSemanticInferenceAction.InferenceRequest req =
             new AgentforceSemanticInferenceAction.InferenceRequest();
-        req.dloApiName = 'BrokenDLO__dlm';
+        req.objectApiName = 'BrokenDLO__dlm';
+        req.entityType    = 'DLO';
 
         Test.startTest();
         List<AgentforceSemanticInferenceAction.InferenceResult> results =

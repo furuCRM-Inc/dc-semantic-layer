@@ -6,12 +6,13 @@ import approveProposal  from '@salesforce/apex/SemanticStewardController.approve
 import rejectProposal   from '@salesforce/apex/SemanticStewardController.rejectProposal';
 
 export default class SemanticStewardWorkspace extends LightningElement {
-    @track proposals      = [];
-    @track isLoading      = false;
-    @track errorMessage   = '';
+    @track proposals    = [];
+    @track isLoading    = false;
+    @track errorMessage = '';
 
     _wiredResult;
-    _mappingOverrides = {};
+    // keyed by proposalId → { mappingOverride, naturalLanguageNotes }
+    _edits = {};
 
     @wire(getDraftProposals)
     wiredProposals(result) {
@@ -34,19 +35,25 @@ export default class SemanticStewardWorkspace extends LightningElement {
     get hasError()     { return Boolean(this.errorMessage); }
     get proposalCount(){ return this.proposals.length; }
 
-    handleMappingOverride(event) {
+    handleFieldChange(event) {
         const proposalId = event.target.dataset.id;
-        this._mappingOverrides[proposalId] = event.detail.value;
+        const field      = event.target.dataset.field;
+        if (!this._edits[proposalId]) this._edits[proposalId] = {};
+        this._edits[proposalId][field] = event.detail.value;
     }
 
     async handleApprove(event) {
         const proposalId = event.target.dataset.id;
-        const override   = this._mappingOverrides[proposalId] ?? null;
+        const edits      = this._edits[proposalId] ?? {};
         this.isLoading   = true;
         try {
-            await approveProposal({ proposalId, verifiedMappingsJson: override });
+            await approveProposal({
+                proposalId,
+                verifiedMappingsJson  : edits.mappingOverride      ?? null,
+                naturalLanguageNotes  : edits.naturalLanguageNotes ?? null
+            });
             this._dispatchToast('Approved', 'Proposal approved and added to Semantic Registry.', 'success');
-            delete this._mappingOverrides[proposalId];
+            delete this._edits[proposalId];
             await refreshApex(this._wiredResult);
         } catch (err) {
             this._dispatchToast('Error', err.body?.message ?? 'Approval failed.', 'error');
