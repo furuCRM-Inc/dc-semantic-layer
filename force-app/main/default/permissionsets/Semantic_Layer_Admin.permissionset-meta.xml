@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Semantic Layer Admin</label>
+    <description>Full read/edit access to Semantic_Proposal__c and Semantic_Registry__c objects and optional custom fields</description>
+
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Semantic_Proposal__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Semantic_Registry__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- Semantic_Proposal__c optional fields (required fields are FLS-exempt) -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Proposal__c.Confidence_Score__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Proposal__c.Proposed_Mappings_JSON__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Proposal__c.Sample_Data_Payload__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Proposal__c.Suggested_DMO__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- Semantic_Registry__c optional fields (required fields are FLS-exempt) -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Registry__c.Business_Logic_Rules__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Registry__c.Context_Tag__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Registry__c.Target_DMO__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Semantic_Registry__c.Verified_By__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Semantic_Registry__c.Verified_Field_Mappings_JSON__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+</PermissionSet>

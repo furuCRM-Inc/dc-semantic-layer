@@ -90,13 +90,13 @@ List<AgentforceSemanticResolver.ResolveResult> p3s = AgentforceSemanticResolver.
 assertEqual('PP3-S found=true',       true,  p3s[0].found);
 assertEqual('PP3-S contextTag=SMB',   'SMB', p3s[0].contextTag);
 assertContains('PP3-S ARR threshold 10M', p3s[0].businessLogicRules, '10,000,000');
-assertContains('PP3-S self-serve trial',  p3s[0].businessLogicRules, 'Self-serve');
+assertContains('PP3-S self-serve trial',  p3s[0].businessLogicRules, 'self-serve');
 
 // ── Isolation: Enterprise context does NOT return SMB rules ──────────────────
 System.debug('=== ISOLATION: Enterprise context must not leak SMB rules ===');
 assertContains('Isolation: Enterprise has MEDDIC, not self-serve',
     p3e[0].businessLogicRules, 'MEDDIC');
-Boolean isolation = !p3e[0].businessLogicRules.contains('Self-serve');
+Boolean isolation = !p3e[0].businessLogicRules.contains('self-serve');
 if (isolation) {
     System.debug('  PASS: Enterprise rules do not contain SMB content');
     passed++;
@@ -111,5 +111,5 @@ System.debug('══════════════════════
 System.debug('RESULT: ' + passed + ' passed, ' + failed + ' failed');
 System.debug('════════════════════════════════════════');
 if (failed > 0) {
-    throw new IllegalStateException('Verification failed: ' + failed + ' check(s) did not pass');
+    throw new IllegalArgumentException('Verification failed: ' + failed + ' check(s) did not pass');
 }
