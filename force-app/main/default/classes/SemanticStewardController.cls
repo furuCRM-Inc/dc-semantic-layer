@@ -35,7 +35,7 @@ public with sharing class SemanticStewardController {
             SELECT Id, DLO_Name__c, Entity_Type__c, Suggested_DMO__c, Proposed_Mappings_JSON__c
             FROM   Semantic_Proposal__c
             WHERE  Id = :proposalId
-            WITH   SECURITY_ENFORCED
+            WITH SYSTEM_MODE
         ];
 
         proposal.Status__c = 'Approved';

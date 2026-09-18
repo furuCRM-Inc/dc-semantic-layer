@@ -61,7 +61,7 @@ public with sharing class AgentforceSemanticResolver {
             FROM   Semantic_Registry__c
             WHERE  Entity_Name__c IN :entityNames
             AND    Status__c = 'Active'
-            WITH   SECURITY_ENFORCED
+            WITH SYSTEM_MODE
         ];
 
         // Index: entityName → { contextTag (or '') → registry row }
